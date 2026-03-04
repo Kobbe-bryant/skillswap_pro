@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Simulator for {{ lesson.title }}</h1>
+<p><strong>Tutor:</strong> {{ lesson.tutor.username }}</p>
+<p><strong>Skill:</strong> {{ lesson.skill.name }}</p>
+<p>{{ lesson.description }}</p>
+<hr>
+{% if lesson.material_file %}
+  <p><strong>Material:</strong> <a href="{{ lesson.material_file.url }}" download>{{ lesson.material_file.name|cut:"lesson_materials/" }}</a></p>
+{% endif %}
+{% if lesson.video_url %}
+  <div class="mt-4">
+    <iframe width="560" height="315" src="{{ lesson.video_url }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+{% endif %}
+<p>
+  Tutors can upload files or provide a video link when creating the lesson; learners
+  will be able to access those materials here.
+</p>
+
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Send Swap Request</h1>
+        <p class="text-gray-600 mb-8">Send a request to <strong>{{ receiver.first_name }} {{ receiver.last_name }}</strong></p>
+
+        <!-- Receiver Info -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold text-blue-900 mb-4">Receiver Profile</h3>
+            <p class="text-gray-700 mb-2"><strong>Name:</strong> {{ receiver.first_name }} {{ receiver.last_name }}</p>
+            <p class="text-gray-700 mb-2"><strong>Username:</strong> @{{ receiver.username }}</p>
+            
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-blue-900 mb-2">They Teach:</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for skill in receiver.profile.skills_offered.all %}
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                            {{ skill.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-blue-900 mb-2">They Want to Learn:</p>
+                <div class="flex flex-wrap gap-2">
+                    {% for skill in receiver.profile.skills_wanted.all %}
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                            {{ skill.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-600 text-red-700 p-4">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Skill Offering -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">
+                    <i class="fas fa-graduation-cap text-green-600"></i> What skill will you teach them?
+                </label>
+                {{ form.skill_offering }}
+                {% if form.skill_offering.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.skill_offering.errors.0 }}</p>
+                {% endif %}
+                <p class="text-gray-500 text-xs mt-2">Select from your offered skills</p>
+            </div>
+
+            <!-- Skill Wanting -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">
+                    <i class="fas fa-lightbulb text-blue-600"></i> What skill do you want to learn?
+                </label>
+                {{ form.skill_wanting }}
+                {% if form.skill_wanting.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.skill_wanting.errors.0 }}</p>
+                {% endif %}
+                <p class="text-gray-500 text-xs mt-2">Select from their offered skills</p>
+            </div>
+
+            <!-- Message -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">
+                    <i class="fas fa-comment text-purple-600"></i> Personal Message (Optional)
+                </label>
+                {{ form.message }}
+                {% if form.message.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.message.errors.0 }}</p>
+                {% endif %}
+                <p class="text-gray-500 text-xs mt-2">Tell them about your experience or why you want to learn this skill</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex space-x-4">
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300">
+                    <i class="fas fa-paper-plane"></i> Send Request
+                </button>
+                <a href="{% url 'user_profile' receiver.id %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+
+        <!-- Info Box -->
+        <div class="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+            <h3 class="font-semibold text-gray-900 mb-2">
+                <i class="fas fa-info-circle text-blue-600"></i> How it works:
+            </h3>
+            <ul class="text-gray-600 text-sm space-y-1 list-disc list-inside">
+                <li>Both of you must offer the skills you're requesting from each other</li>
+                <li>Once they accept your request, you can start the skill exchange</li>
+                <li>Mark the swap as complete when you've both finished learning</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

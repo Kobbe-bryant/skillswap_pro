@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-12 px-4">
+    <!-- Page Header -->
+    <h1 class="text-4xl font-bold text-gray-900 mb-8">Your Dashboard</h1>
+    {% if unread_notifications %}
+        <p class="text-yellow-600 mb-4">You have {{ unread_notifications }} new notification{% if unread_notifications|pluralize %}s{% endif %}. <a href="{% url 'notifications' %}" class="text-blue-600 underline">View them</a>.</p>
+    {% endif %}
+
+    <!-- Stats Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Pending Requests</p>
+                    <p class="text-3xl font-bold text-yellow-600">{{ pending_count }}</p>
+                </div>
+                <i class="fas fa-hourglass-half text-4xl text-yellow-300"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Accepted Requests</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ accepted_count }}</p>
+                </div>
+                <i class="fas fa-check-circle text-4xl text-blue-300"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm">Completed Swaps</p>
+                    <p class="text-3xl font-bold text-green-600">{{ completed_count }}</p>
+                </div>
+                <i class="fas fa-star text-4xl text-green-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="flex border-b">
+            <button onclick="showTab('received')" class="tab-button flex-1 px-6 py-4 text-left font-semibold text-gray-900 border-b-2 border-blue-600 bg-blue-50">
+                <i class="fas fa-inbox"></i> Received Requests
+            </button>
+            <button onclick="showTab('sent')" class="tab-button flex-1 px-6 py-4 text-left font-semibold text-gray-600 hover:text-gray-900">
+                <i class="fas fa-paper-plane"></i> Sent Requests
+            </button>
+        </div>
+
+        <!-- Received Requests Tab -->
+        <div id="received-tab" class="tab-content p-6">
+            {% if received_requests %}
+                <div class="space-y-4">
+                    {% for request in received_requests %}
+                        <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        {% if request.status == 'Pending' %}
+                                            <i class="fas fa-user text-blue-600"></i>
+                                        {% elif request.status == 'Accepted' %}
+                                            <i class="fas fa-handshake text-green-600"></i>
+                                        {% elif request.status == 'Completed' %}
+                                            <i class="fas fa-star text-yellow-600"></i>
+                                        {% else %}
+                                            <i class="fas fa-times text-red-600"></i>
+                                        {% endif %}
+                                        From: <a href="{% url 'user_profile' request.sender.id %}" class="text-blue-600 hover:underline">{{ request.sender.first_name }} {{ request.sender.last_name }}</a>
+                                    </h3>
+                                    <p class="text-gray-600 mt-2">
+                                        <strong>Offering:</strong> {{ request.skill_offering.name }}
+                                        <strong class="ml-6">Wants:</strong> {{ request.skill_wanting.name }}
+                                    </p>
+                                    {% if request.message %}
+                                        <p class="text-gray-600 mt-2 italic">{{ request.message }}</p>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-sm mt-2">{{ request.created_at|date:'M d, Y H:i' }}</p>
+                                </div>
+
+                                <!-- Status Badge -->
+                                <div class="ml-4">
+                                    <span class="px-4 py-2 font-semibold rounded-lg text-sm
+                                        {% if request.status == 'Pending' %}bg-yellow-100 text-yellow-700
+                                        {% elif request.status == 'Accepted' %}bg-green-100 text-green-700
+                                        {% elif request.status == 'Completed' %}bg-blue-100 text-blue-700
+                                        {% else %}bg-gray-100 text-gray-700
+                                        {% endif %}">
+                                        {{ request.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            {% if request.status == 'Pending' %}
+                                <div class="flex space-x-3 mt-4">
+                                    <form method="post" action="{% url 'accept_swap_request' request.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300">
+                                            <i class="fas fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'reject_swap_request' request.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            {% elif request.status == 'Accepted' %}
+                                <div class="mt-4">
+                                    <form method="post" action="{% url 'complete_swap_request' request.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                                            <i class="fas fa-check-double"></i> Mark Complete
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-envelope text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600">No received requests yet</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sent Requests Tab -->
+        <div id="sent-tab" class="tab-content hidden p-6">
+            {% if sent_requests %}
+                <div class="space-y-4">
+                    {% for request in sent_requests %}
+                        <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition duration-300">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        <i class="fas fa-user text-purple-600"></i>
+                                        To: <a href="{% url 'user_profile' request.receiver.id %}" class="text-blue-600 hover:underline">{{ request.receiver.first_name }} {{ request.receiver.last_name }}</a>
+                                    </h3>
+                                    <p class="text-gray-600 mt-2">
+                                        <strong>Offering:</strong> {{ request.skill_offering.name }}
+                                        <strong class="ml-6">Wants:</strong> {{ request.skill_wanting.name }}
+                                    </p>
+                                    {% if request.message %}
+                                        <p class="text-gray-600 mt-2 italic">{{ request.message }}</p>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-sm mt-2">{{ request.created_at|date:'M d, Y H:i' }}</p>
+                                </div>
+
+                                <!-- Status Badge -->
+                                <div class="ml-4">
+                                    <span class="px-4 py-2 font-semibold rounded-lg text-sm
+                                        {% if request.status == 'Pending' %}bg-yellow-100 text-yellow-700
+                                        {% elif request.status == 'Accepted' %}bg-green-100 text-green-700
+                                        {% elif request.status == 'Completed' %}bg-blue-100 text-blue-700
+                                        {% else %}bg-gray-100 text-gray-700
+                                        {% endif %}">
+                                        {{ request.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            {% if request.status != 'Completed' and request.status != 'Rejected' %}
+                                <div class="mt-4">
+                                    <form method="post" action="{% url 'cancel_swap_request' request.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                                            <i class="fas fa-times"></i> Cancel Request
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-paper-plane text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600">No sent requests yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-8">
+        <a href="{% url 'marketplace' %}" class="inline-block px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300">
+            <i class="fas fa-arrow-left"></i> Back to Marketplace
+        </a>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('border-b-2', 'border-blue-600', 'bg-blue-50');
+        btn.classList.add('text-gray-600', 'hover:text-gray-900');
+    });
+
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
+    event.target.classList.add('border-b-2', 'border-blue-600', 'bg-blue-50');
+    event.target.classList.remove('text-gray-600', 'hover:text-gray-900');
+    event.target.classList.add('text-gray-900');
+}
+</script>
+{% endblock %}

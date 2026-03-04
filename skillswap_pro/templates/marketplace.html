@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Marketplace</h1>
+        <p class="text-gray-600">Discover skills you can learn from peers in the community</p>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form method="get" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Bar -->
+                <div class="md:col-span-2">
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Search by username, name, or bio..."
+                        value="{{ search_query }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+
+                <!-- Skill Filter -->
+                <div>
+                    <input
+                        type="text"
+                        name="skill"
+                        placeholder="Skill..."
+                        value="{{ skill_filter }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <select
+                        name="category"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-between">
+                <button
+                    type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+                >
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a
+                    href="{% url 'marketplace' %}"
+                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300"
+                >
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Grid -->
+    {% if users %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for user in users %}
+                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-24"></div>
+
+                    <!-- Card Body -->
+                    <div class="px-6 py-4 -mt-12 relative z-10">
+                        <!-- Avatar -->
+                        <div class="flex justify-center mb-4">
+                            <div class="w-24 h-24 bg-white rounded-full border-4 border-gray-200 flex items-center justify-center shadow-md">
+                                <i class="fas fa-user text-blue-500 text-4xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- User Info -->
+                        <h3 class="text-xl font-bold text-center text-gray-900">{{ user.first_name }} {{ user.last_name }}</h3>
+                        <p class="text-center text-gray-600 text-sm">@{{ user.username }}</p>
+                        {% if user.avg_rating %}
+                            <div class="flex justify-center mt-1">
+                                <span class="text-yellow-500">★ {{ user.avg_rating|floatformat:1 }}</span>
+                            </div>
+                        {% endif %}
+
+                        <!-- Bio -->
+                        {% if user.profile.bio %}
+                            <p class="text-gray-600 text-sm text-center mt-3 mb-4 h-12 overflow-hidden">
+                                {{ user.profile.bio|truncatewords:15 }}
+                            </p>
+                        {% endif %}
+
+                        <!-- Skills Offered -->
+                        <div class="mt-4 mb-4">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-graduation-cap text-green-600"></i> Teaches
+                            </h4>
+                            {% if user.profile.skills_offered.all %}
+                                <div class="flex flex-wrap gap-2">
+                                    {% for skill in user.profile.skills_offered.all|slice:":3" %}
+                                        <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                                            {{ skill.name }}
+                                        </span>
+                                    {% endfor %}
+                                    {% if user.profile.skills_offered.count > 3 %}
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
+                                            +{{ user.profile.skills_offered.count|add:"-3" }} more
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500 text-xs">No skills offered yet</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Skills Wanted -->
+                        <div class="mb-4">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-lightbulb text-blue-600"></i> Wants to Learn
+                            </h4>
+                            {% if user.profile.skills_wanted.all %}
+                                <div class="flex flex-wrap gap-2">
+                                    {% for skill in user.profile.skills_wanted.all|slice:":3" %}
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                                            {{ skill.name }}
+                                        </span>
+                                    {% endfor %}
+                                    {% if user.profile.skills_wanted.count > 3 %}
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
+                                            +{{ user.profile.skills_wanted.count|add:"-3" }} more
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500 text-xs">No skills wanted yet</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="mt-6">
+                            <a
+                                href="{% url 'user_profile' user.id %}"
+                                class="w-full block text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 font-semibold"
+                            >
+                                <i class="fas fa-eye"></i> View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if paginator.num_pages > 1 %}
+            <div class="mt-8 flex justify-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&category={{ selected_category }}&skill={{ skill_filter }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                {% endif %}
+                <span class="px-3 py-1 bg-gray-100 rounded">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&category={{ selected_category }}&skill={{ skill_filter }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-lg shadow-md p-16 text-center">
+            <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">No users found</h3>
+            <p class="text-gray-600 mb-6">
+                {% if search_query or selected_category %}
+                    Try adjusting your search or filters.
+                {% else %}
+                    Be the first to join SkillSwap!
+                {% endif %}
+            </p>
+            <a
+                href="{% url 'marketplace' %}"
+                class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+                <i class="fas fa-redo"></i> Refresh
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- CTA Section -->
+{% if not user.is_authenticated %}
+    <div class="bg-blue-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-4">Join the SkillSwap Community</h2>
+            <p class="text-lg mb-8 max-w-2xl mx-auto">
+                Create an account to share your skills, find mentors, and grow your knowledge with peers.
+            </p>
+            <a
+                href="{% url 'signup' %}"
+                class="inline-block px-8 py-3 bg-white text-blue-600 rounded-lg font-bold hover:bg-gray-100 transition duration-300"
+            >
+                <i class="fas fa-user-plus"></i> Sign Up Now
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

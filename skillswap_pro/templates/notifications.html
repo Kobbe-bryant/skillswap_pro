@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-12 px-4">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Notifications</h1>
+    {% if notifications %}
+        <ul class="space-y-4">
+            {% for note in notifications %}
+                <li class="p-4 rounded-lg border {% if not note.is_read %}bg-blue-50 border-blue-200{% else %}bg-white border-gray-200{% endif %}">
+                    <a href="{{ note.link|default:'#' }}" class="text-gray-800 hover:underline">
+                        {{ note.message }}
+                    </a>
+                    <p class="text-gray-500 text-xs mt-1">{{ note.created_at|date:'M d, Y H:i' }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-600">You have no notifications.</p>
+    {% endif %}
+</div>
+{% endblock %}

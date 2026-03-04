@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Your Profile</h1>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-600 text-red-700 p-4">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Bio -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">Bio</label>
+                {{ form.bio }}
+                {% if form.bio.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.bio.errors.0 }}</p>
+                {% endif %}
+                <p class="text-gray-500 text-xs mt-1">Tell us about yourself (max 500 characters)</p>
+            </div>
+
+            <!-- Profile Image -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-2">Profile Picture</label>
+                {% if profile.profile_image %}
+                    <div class="mb-4">
+                        <img src="{{ profile.profile_image.url }}" alt="Profile" class="w-32 h-32 rounded-lg object-cover">
+                    </div>
+                {% endif %}
+                {{ form.profile_image }}
+                {% if form.profile_image.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.profile_image.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Skills Offered -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-3">Skills You Offer</label>
+                {% if form.skills_offered.errors %}
+                    <p class="text-red-600 text-sm mb-2">{{ form.skills_offered.errors.0 }}</p>
+                {% endif %}
+                <div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto">
+                    {{ form.skills_offered }}
+                </div>
+                <p class="text-gray-500 text-xs mt-2">Select the skills you can teach to others</p>
+            </div>
+
+            <!-- Skills Wanted -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-3">Skills You Want to Learn</label>
+                {% if form.skills_wanted.errors %}
+                    <p class="text-red-600 text-sm mb-2">{{ form.skills_wanted.errors.0 }}</p>
+                {% endif %}
+                <div class="bg-gray-50 p-4 rounded-lg max-h-40 overflow-y-auto">
+                    {{ form.skills_wanted }}
+                </div>
+                <p class="text-gray-500 text-xs mt-2">Select the skills you want to acquire</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex space-x-4">
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{% url 'marketplace' %}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-300">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-2">{{ lesson.title }}</h1>
+<p>Skill: {{ lesson.skill.name }}</p>
+<p>Tutor: {{ lesson.tutor.username }}</p>
+<p>Scheduled for {{ lesson.scheduled_time|date:'SHORT_DATETIME_FORMAT' }}</p>
+<p>Status: {{ lesson.get_status_display }}</p>
+<p>{{ lesson.description }}</p>
+
+{% if is_tutor %}
+  <a href="{% url 'lesson_simulator' lesson.id %}" class="btn btn-secondary mt-2">Open Simulator</a>
+{% elif joined %}
+  <p>You have joined this lesson.</p>
+  <a href="{% url 'lesson_simulator' lesson.id %}" class="btn btn-secondary mt-2">Enter Simulator</a>
+{% else %}
+  <form method="post" action="{% url 'lesson_join' lesson.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Join Lesson</button>
+  </form>
+{% endif %}
+
+{% endblock %}

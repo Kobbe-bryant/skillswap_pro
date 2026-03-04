@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap - Peer-to-Peer Skill Sharing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                        <i class="fas fa-exchange-alt text-blue-600 text-2xl"></i>
+                        <span class="text-xl font-bold text-gray-900">SkillSwap</span>
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'marketplace' %}" class="text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-store"></i> Marketplace
+                        </a>
+                        <a href="{% url 'matching' %}" class="text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-handshake"></i> Matching
+                        </a>
+                        <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                        <a href="{% url 'lesson_list' %}" class="text-gray-600 hover:text-blue-600 transition duration-300">
+                            <i class="fas fa-chalkboard-teacher"></i> Lessons
+                        </a>
+                        <div class="relative">
+                            <a href="{% url 'notifications' %}" class="text-gray-600 hover:text-blue-600 transition duration-300 px-2">
+                                <i class="fas fa-bell text-xl"></i>
+                                <!-- Notification badge will show if there are unread notifications -->
+                            </a>
+                        </div>
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition duration-300">
+                                <i class="fas fa-user-circle text-2xl"></i>
+                                <span>{{ user.username }}</span>
+                            </button>
+                            <div class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300">
+                                <a href="{% url 'profile_edit' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-t-lg">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </a>
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-b-lg text-red-600 hover:text-red-700">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'marketplace' %}" class="text-gray-600 hover:text-blue-600 transition duration-300">
+                            Browse
+                        </a>
+                        <a href="{% url 'login' %}" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition duration-300">
+                            Login
+                        </a>
+                        <a href="{% url 'signup' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden pb-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'marketplace' %}" class="block px-4 py-2 text-gray-600 hover:text-blue-600">
+                        Marketplace
+                    </a>
+                    <a href="{% url 'matching' %}" class="block px-4 py-2 text-gray-600 hover:text-blue-600">
+                        Matching
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-gray-600 hover:text-blue-600">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'lesson_list' %}" class="block px-4 py-2 text-gray-600 hover:text-blue-600">
+                        Lessons
+                    </a>
+                    <a href="{% url 'profile_edit' %}" class="block px-4 py-2 text-gray-600 hover:text-blue-600">
+                        Edit Profile
+                    </a>
+                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-red-600 hover:text-red-700">
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block px-4 py-2 text-blue-600 hover:text-blue-700">
+                        Login
+                    </a>
+                    <a href="{% url 'signup' %}" class="block px-4 py-2 bg-blue-600 text-white rounded-lg m-2">
+                        Sign Up
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="slide-in rounded-lg p-4 mb-4 {% if message.tags %}
+                    {% if 'success' in message.tags %}bg-green-50 border-l-4 border-green-600 text-green-700
+                    {% elif 'error' in message.tags %}bg-red-50 border-l-4 border-red-600 text-red-700
+                    {% elif 'warning' in message.tags %}bg-yellow-50 border-l-4 border-yellow-600 text-yellow-700
+                    {% else %}bg-blue-50 border-l-4 border-blue-600 text-blue-700
+                    {% endif %}
+                {% else %}bg-gray-100 border-l-4 border-gray-600 text-gray-700{% endif %}">
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            {{ message }}
+                        </div>
+                        <button onclick="this.parentElement.parentElement.style.display='none'" class="ml-4 font-bold">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="fade-in">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">SkillSwap</h3>
+                    <p class="text-gray-400">A peer-to-peer skill-sharing platform to exchange knowledge and learn from others.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+                    <ul class="text-gray-400 space-y-2">
+                        <li><a href="{% url 'index' %}" class="hover:text-white">Home</a></li>
+                        <li><a href="{% url 'marketplace' %}" class="hover:text-white">Marketplace</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'dashboard' %}" class="hover:text-white">Dashboard</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4 text-gray-400">
+                        <a href="#" class="hover:text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-white"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 SkillSwap. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Available Lessons</h1>
+<a href="{% url 'lesson_create' %}" class="btn btn-primary mb-4">Create New Lesson</a>
+<ul class="space-y-3">
+  {% for lesson in lessons %}
+    <li class="border p-4 rounded">
+      <a href="{% url 'lesson_detail' lesson.id %}" class="text-lg font-semibold">{{ lesson.title }}</a>
+      by {{ lesson.tutor.username }} &ndash; {{ lesson.skill.name }}<br>
+      {{ lesson.scheduled_time|date:'SHORT_DATETIME_FORMAT' }}
+    </li>
+  {% empty %}
+    <li>No lessons scheduled.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

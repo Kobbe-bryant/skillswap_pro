@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-12 px-4">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Leave a Rating</h1>
+        <p class="text-gray-600 mb-6">Rate your swap with <strong>{% if swap.sender == user %}{{ swap.receiver.username }}{% else %}{{ swap.sender.username }}{% endif %}</strong></p>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {{ form.score }}
+            <div>
+                {{ form.comment }}
+            </div>
+            <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                Submit Rating
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
